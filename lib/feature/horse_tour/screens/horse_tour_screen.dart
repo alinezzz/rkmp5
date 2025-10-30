@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/horse_tour_model.dart';
 import '../horse_tour_repository.dart';
 import 'package:rkmp5/feature/booking/screens/booking_screen.dart';
+import 'package:rkmp5/share/widgets/tour_row.dart';
 
 class ToursListScreen extends StatelessWidget {
   final ToursRepository repository = ToursRepository();
@@ -31,7 +32,7 @@ class ToursListScreen extends StatelessWidget {
   }
 }
 
-class ToursListView extends StatelessWidget {
+class ToursListView extends StatefulWidget {
   final List<TourModel> tours;
   final Function(TourModel) onBookTap;
 
@@ -40,23 +41,45 @@ class ToursListView extends StatelessWidget {
     required this.tours,
     required this.onBookTap,
   });
+  @override
+  _ToursListViewState createState() => _ToursListViewState();
+}
 
+class _ToursListViewState extends State<ToursListView> {
+  late List<TourModel> _tours;
+  final List<TourModel> _favorites = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _tours = List.from(widget.tours);
+  }
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: tours.length,
+      itemCount: _tours.length,
       itemBuilder: (context, index) {
-        final tour = tours[index];
-        return Card(
-          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: ListTile(
-            title: Text(tour.name),
-            subtitle: Text('${tour.location} - ${tour.duration} - \$${tour.pricePerPerson} за одного человека'),
-            trailing: ElevatedButton(
-              onPressed: () => onBookTap(tour),
-              child: Text('Забронировать'),
-            ),
-          ),
+        final tour = _tours[index];
+        return TourRow(
+          tour: tour,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingFormScreen(tour: tour),
+              ),
+            );
+          },
+          onFavorite: () {
+            setState(() {
+              if (!_favorites.contains(tour)) {
+                _favorites.add(tour);
+              }
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${tour.name} добавить в Избранное')),
+            );
+          },
         );
       },
     );
