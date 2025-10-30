@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'feature/horse_tour/screens/horse_tour_container.dart';
+import 'feature/horse_tour/containers/horse_tour_container.dart';
 
 class HorseToursApp extends StatelessWidget {
   const HorseToursApp({super.key});

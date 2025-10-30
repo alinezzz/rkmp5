@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'feature/booking/containers/booking_container.dart';
-import 'feature/horse_tour/screens/horse_tour_container.dart';
+import 'feature/horse_tour/containers/horse_tour_container.dart';
 
 void main() {
   runApp(const MyApp());
