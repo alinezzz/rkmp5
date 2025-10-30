@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../containers/booking_container.dart';
-import '../models/booking_model.dart';
-import '../../horse_tour/models/horse_tour_model.dart';
+import '../../booking/containers/booking_container.dart';
+import '../../booking/models/booking_model.dart';
+import '../models/horse_tour_model.dart';
 
-class BookingScreen extends StatelessWidget {
-  const BookingScreen({super.key});
+class BookingsScreen extends StatelessWidget {
+  const BookingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class BookingScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Мои бронирования')),
       body: bookings.isEmpty
-          ? const Center(child: Text('Пока нет забронированных туров'))
+          ? const Center(child: Text('Нет оформленных бронирований.'))
           : ListView.builder(
         itemCount: bookings.length,
         itemBuilder: (context, index) {

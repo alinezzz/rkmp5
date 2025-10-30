@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rkmp5/feature/horse_tour/models/horse_tour_model.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
-import 'package:rkmp5/feature/booking/screens/booking_screen.dart';
+import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
 
 class TourFavoritesTable extends StatelessWidget {
   final List<TourModel> favoriteTours;
@@ -17,7 +17,7 @@ class TourFavoritesTable extends StatelessWidget {
   Widget build(BuildContext context) {
     if (favoriteTours.isEmpty) {
       return const Center(
-        child: Text('No favorite tours yet.'),
+        child: Text('Избранных туров пока нет'),
       );
     }
 

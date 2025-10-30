@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/horse_tour_model.dart';
 import '../horse_tour_repository.dart';
 import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
+import 'package:rkmp5/feature/booking/screens/booking_screen.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
 
 class ToursListScreen extends StatelessWidget {
@@ -15,9 +16,9 @@ class ToursListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Доступные конные туры'),
+        title: const Text('Доступные конные туры'),
       ),
-      body: ToursListView(
+      body: ToursContainer(
         tours: tours,
         onBookTap: (tour) {
           Navigator.push(
@@ -28,24 +29,37 @@ class ToursListScreen extends StatelessWidget {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.list_alt),
+        label: const Text('Мои забронированные туры'),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const BookingScreen(),
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
-class ToursListView extends StatefulWidget {
+class ToursContainer extends StatefulWidget {
   final List<TourModel> tours;
   final Function(TourModel) onBookTap;
 
-  const ToursListView({
+  const ToursContainer({
     super.key,
     required this.tours,
     required this.onBookTap,
   });
+
   @override
-  _ToursListViewState createState() => _ToursListViewState();
+  _ToursContainerState createState() => _ToursContainerState();
 }
 
-class _ToursListViewState extends State<ToursListView> {
+class _ToursContainerState extends State<ToursContainer> {
   late List<TourModel> _tours;
   final List<TourModel> _favorites = [];
 
@@ -54,6 +68,7 @@ class _ToursListViewState extends State<ToursListView> {
     super.initState();
     _tours = List.from(widget.tours);
   }
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -75,7 +90,7 @@ class _ToursListViewState extends State<ToursListView> {
             setState(() {
               if (_favorites.contains(tour)) {
                 _favorites.remove(tour);
-              } else{
+              } else {
                 _favorites.add(tour);
               }
             });
