@@ -58,7 +58,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
             children: [
               TextFormField(
                 controller: _startDateController,
-                decoration: const InputDecoration(labelText: 'Дата начала (ГГГ-ММ-ДД)'),
+                decoration: const InputDecoration(labelText: 'Дата начала (ГГГГ-ММ-ДД)'),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Введите дату начала тура';
                   return null;
