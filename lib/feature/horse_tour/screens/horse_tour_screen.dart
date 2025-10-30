@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/horse_tour_model.dart';
 import '../horse_tour_repository.dart';
+import 'package:rkmp5/feature/booking/screens/booking_screen.dart';
 
 class ToursListScreen extends StatelessWidget {
   final ToursRepository repository = ToursRepository();
@@ -18,8 +19,11 @@ class ToursListScreen extends StatelessWidget {
       body: ToursListView(
         tours: tours,
         onBookTap: (tour) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Бронирование ${tour.name}')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookingFormScreen(tour: tour),
+            ),
           );
         },
       ),
