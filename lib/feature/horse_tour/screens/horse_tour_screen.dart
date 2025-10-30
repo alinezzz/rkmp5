@@ -58,27 +58,27 @@ class _ToursListViewState extends State<ToursListView> {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: _tours.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (BuildContext context, int index) {
         final tour = _tours[index];
         return TourRow(
           tour: tour,
+          isFavorite: _favorites.contains(tour),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BookingFormScreen(tour: tour),
+                builder: (_) => BookingFormScreen(tour: tour),
               ),
             );
           },
           onFavorite: () {
             setState(() {
-              if (!_favorites.contains(tour)) {
+              if (_favorites.contains(tour)) {
+                _favorites.remove(tour);
+              } else{
                 _favorites.add(tour);
               }
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${tour.name} добавить в Избранное')),
-            );
           },
         );
       },

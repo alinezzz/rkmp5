@@ -7,7 +7,7 @@ class TourRow extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback? onFavorite;
 
-  const TourRow({
+    TourRow({
     super.key,
     required this.tour,
     this.onTap,
