@@ -7,7 +7,7 @@ class HorseToursApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Horse Tours Booking App',
+      title: 'Приложение для бронирования конных туров',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
