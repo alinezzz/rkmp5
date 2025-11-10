@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'feature/booking/containers/booking_container.dart';
 import 'feature/horse_tour/containers/horse_tour_container.dart';
+import 'feature/horse_tour/screens/horse_tour_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Приложение для бронирования конных туров',
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: ToursListScreen(),
+        home: HorseToursListScreen(),
       ),
     );
   }

@@ -5,8 +5,14 @@ import '../models/booking_model.dart';
 
 class BookingFormScreen extends StatefulWidget {
   final TourModel tour;
+  final void Function(BookingModel) onSubmit;
+  final VoidCallback onCancel;
 
-  const BookingFormScreen({super.key, required this.tour});
+  const BookingFormScreen({
+    super.key,
+    required this.tour,
+    required this.onSubmit,
+    required this.onCancel});
 
   @override
   _BookingFormScreenState createState() => _BookingFormScreenState();
@@ -75,6 +81,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(onPressed: _onConfirmTap, child: const Text('Забронировать')),
+              const SizedBox(height: 12),
+              TextButton(onPressed: widget.onCancel, child: const Text('Выйти'))
             ],
           ),
         ),

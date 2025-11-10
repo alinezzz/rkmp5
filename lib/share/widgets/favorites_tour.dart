@@ -3,6 +3,8 @@ import 'package:rkmp5/feature/horse_tour/models/horse_tour_model.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
 import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
 
+import '../../feature/booking/models/booking_model.dart';
+
 class TourFavoritesTable extends StatelessWidget {
   final List<TourModel> favoriteTours;
   final Function(TourModel)? onRemoveFavorite;
@@ -28,14 +30,6 @@ class TourFavoritesTable extends StatelessWidget {
         return TourRow(
           tour: tour,
           isFavorite: true,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BookingFormScreen(tour: tour),
-              ),
-            );
-          },
           onFavorite: () {
             if (onRemoveFavorite != null) {
               onRemoveFavorite!(tour);

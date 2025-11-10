@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'feature/horse_tour/containers/horse_tour_container.dart';
+import 'feature/horse_tour/screens/horse_tour_screen.dart';
 
 class HorseToursApp extends StatelessWidget {
   const HorseToursApp({super.key});
@@ -11,7 +12,7 @@ class HorseToursApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ToursListScreen(),
+      home: HorseToursListScreen(),
     );
   }
 }
