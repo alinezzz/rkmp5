@@ -5,6 +5,7 @@ class TourModel {
   final String duration;
   final double pricePerPerson;
   final String description;
+  final String pictureLink;
 
   TourModel({
     required this.id,
@@ -13,6 +14,7 @@ class TourModel {
     required this.duration,
     required this.pricePerPerson,
     required this.description,
+    required this.pictureLink,
   });
 
   TourModel copyWith({
@@ -22,6 +24,7 @@ class TourModel {
     String? duration,
     double? pricePerPerson,
     String? description,
+    String? pictureLink,
   }) {
     return TourModel(
       id: id ?? this.id,
@@ -30,6 +33,7 @@ class TourModel {
       duration: duration ?? this.duration,
       pricePerPerson: pricePerPerson ?? this.pricePerPerson,
       description: description ?? this.description,
+      pictureLink: pictureLink ?? this.pictureLink,
     );
   }
 }

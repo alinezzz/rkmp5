@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import '../../horse_tour/models/horse_tour_model.dart';
 import '../containers/booking_container.dart';
 import '../models/booking_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import '../../horse_tour/models/horse_tour_model.dart';
+import '../models/booking_model.dart';
 
 class BookingFormScreen extends StatefulWidget {
   final TourModel tour;
@@ -12,7 +19,8 @@ class BookingFormScreen extends StatefulWidget {
     super.key,
     required this.tour,
     required this.onSubmit,
-    required this.onCancel});
+    required this.onCancel,
+  });
 
   @override
   _BookingFormScreenState createState() => _BookingFormScreenState();
@@ -41,50 +49,61 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
         endDate: end,
       );
 
-      BookingContainer.of(context).addBooking(booking);
+      widget.onSubmit(booking);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Бронирование прошло успешно')),
+        const SnackBar(content: Text('Бронирование сохранено!')),
       );
-
-      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Бронирование')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _startDateController,
-                decoration: const InputDecoration(labelText: 'Дата начала (ГГГГ-ММ-ДД)'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Введите дату начала тура';
-                  return null;
-                },
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CachedNetworkImage(
+              imageUrl: widget.tour.pictureLink,
+              height: 200,
+              fit: BoxFit.contain,
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
+            const SizedBox(height: 16),
+            Text('Забронировать ${widget.tour.name}', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 16),
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _startDateController,
+                    decoration: const InputDecoration(labelText: 'Дата начала (ГГГ-MM-ДД)'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Введите дату начала';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _endDateController,
+                    decoration: const InputDecoration(labelText: 'Дата окончания (ГГГ-MM-ДД)'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Введите дату начала';
+                      return null;
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _endDateController,
-                decoration: const InputDecoration(labelText: 'Дата завершения (ГГГГ-ММ-ДД)'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Введите дату завершения тура';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(onPressed: _onConfirmTap, child: const Text('Забронировать')),
-              const SizedBox(height: 12),
-              TextButton(onPressed: widget.onCancel, child: const Text('Выйти'))
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(onPressed: _onConfirmTap, child: const Text('Подтвердить бронирование')),
+            const SizedBox(height: 12),
+            TextButton(onPressed: widget.onCancel, child: const Text('Выход')),
+          ],
         ),
       ),
     );
