@@ -59,8 +59,8 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               width: 500,
               height: 200,
               fit: BoxFit.cover,
-              placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => Icon(Icons.error),
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
             Expanded(
               child: ListView.builder(
@@ -98,13 +98,37 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
 
       case AppScreen.bookings:
         body = _bookings.isEmpty
-            ? const Center(child: Text('Нет бронирований.'))
+            ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CachedNetworkImage(
+                imageUrl:
+                'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
+                width: 200,
+                height: 200,
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+              const SizedBox(height: 16),
+              const Text('Бронирований пока нет'),
+            ],
+          ),
+        )
             : ListView.builder(
           itemCount: _bookings.length,
           itemBuilder: (context, index) {
             final booking = _bookings[index];
             final tour = booking.tour;
             return ListTile(
+              leading: CachedNetworkImage(
+                imageUrl: tour.pictureLink,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
               title: Text(tour.name),
               subtitle: Text(
                 'С ${booking.startDate.toIso8601String().split("T")[0]} '
@@ -118,11 +142,13 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentScreen == AppScreen.toursList
-            ? 'Доступные конные туры'
-            : _currentScreen == AppScreen.bookings
-            ? 'Мои бронирования'
-            : 'Форма бронирования'),
+        title: Text(
+          _currentScreen == AppScreen.toursList
+              ? 'Доступные конные туры'
+              : _currentScreen == AppScreen.bookings
+              ? 'Мои бронирования'
+              : 'Форма бронирования',
+        ),
       ),
       body: body,
       floatingActionButton: _currentScreen == AppScreen.toursList
@@ -135,3 +161,4 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
     );
   }
 }
+
