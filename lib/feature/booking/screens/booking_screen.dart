@@ -12,7 +12,15 @@ class BookingsScreen extends StatelessWidget {
     final bookings = BookingContainer.of(context).bookings;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Мои бронирования')),
+      appBar: AppBar(
+        title: const Text('Мои бронирования'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: bookings.isEmpty
           ? Center(
         child: Column(
@@ -59,4 +67,3 @@ class BookingsScreen extends StatelessWidget {
     );
   }
 }
-

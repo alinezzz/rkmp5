@@ -40,9 +40,12 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
   void _addBooking(BookingModel booking) {
     setState(() {
       _bookings.add(booking);
+      _tours.remove(booking.tour); // убрать забронированный тур из списка доступных
       _currentScreen = AppScreen.toursList;
+      _selectedTour = null; // очистить выбранный тур после бронирования
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,16 +62,16 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
             children: [
               CachedNetworkImage(
                 imageUrl:
-                'https://avatars.mds.yandex.net/i?id=1e6c21e88ae2f6bb685eeaa80385901f342d0583-8750570-images-thumbs&n=13',
-                width: 150,
-                height: 150,
+                'https://i.pinimg.com/originals/41/f8/65/41f865ca4cfce007720cf280c7410590.jpg',
+                width: 300,
+                height: 300,
                 placeholder: (context, url) =>
                 const Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) =>
                 const Icon(Icons.error),
               ),
               const SizedBox(height: 16),
-              const Text('Туры пока не доступны.'),
+              const Text('Туры пока недоступны.'),
             ],
           ),
         )
@@ -174,6 +177,15 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
             : _currentScreen == AppScreen.bookings
             ? 'Мои бронирования'
             : 'Форма бронирования'),
+        leading: _currentScreen == AppScreen.bookings
+            ? IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => setState(() {
+            _currentScreen = AppScreen.toursList;
+            _selectedTour = null;
+          }),
+        )
+            : null,
       ),
       body: body,
       floatingActionButton: _currentScreen == AppScreen.toursList

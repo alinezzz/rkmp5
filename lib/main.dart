@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BookingContainer(
       child: MaterialApp(
-        title: 'Приложение для бронирования конных туров',
+        title: 'Бронирование конных туров',
         theme: ThemeData(primarySwatch: Colors.blue),
         home: HorseToursListScreen(),
       ),

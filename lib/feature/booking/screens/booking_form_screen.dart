@@ -4,12 +4,6 @@ import '../containers/booking_container.dart';
 import '../models/booking_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import '../../horse_tour/models/horse_tour_model.dart';
-import '../models/booking_model.dart';
-
 class BookingFormScreen extends StatefulWidget {
   final TourModel tour;
   final void Function(BookingModel) onSubmit;
@@ -81,7 +75,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 children: [
                   TextFormField(
                     controller: _startDateController,
-                    decoration: const InputDecoration(labelText: 'Дата начала (ГГГ-MM-ДД)'),
+                    decoration: const InputDecoration(labelText: 'Дата начала (ГГГГ-MM-ДД)'),
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Введите дату начала';
                       return null;
@@ -90,7 +84,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _endDateController,
-                    decoration: const InputDecoration(labelText: 'Дата окончания (ГГГ-MM-ДД)'),
+                    decoration: const InputDecoration(labelText: 'Дата окончания (ГГГГ-MM-ДД)'),
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Введите дату начала';
                       return null;
