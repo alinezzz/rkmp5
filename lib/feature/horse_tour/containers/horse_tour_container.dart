@@ -52,15 +52,37 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
 
     switch (_currentScreen) {
       case AppScreen.toursList:
-        body = Column(
+        body = _tours.isEmpty
+            ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CachedNetworkImage(
+                imageUrl:
+                'https://avatars.mds.yandex.net/i?id=1e6c21e88ae2f6bb685eeaa80385901f342d0583-8750570-images-thumbs&n=13',
+                width: 150,
+                height: 150,
+                placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                const Icon(Icons.error),
+              ),
+              const SizedBox(height: 16),
+              const Text('Туры пока не доступны.'),
+            ],
+          ),
+        )
+            : Column(
           children: [
             CachedNetworkImage(
               imageUrl: logoUrl,
               width: 500,
               height: 200,
               fit: BoxFit.cover,
-              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+              placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) =>
+              const Icon(Icons.error),
             ),
             Expanded(
               child: ListView.builder(
@@ -70,7 +92,8 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                   return TourRow(
                     tour: tour,
                     isFavorite: _favorites.contains(tour),
-                    onTap: () => _navigateTo(AppScreen.bookingForm, tour: tour),
+                    onTap: () =>
+                        _navigateTo(AppScreen.bookingForm, tour: tour),
                     onFavorite: () {
                       setState(() {
                         if (_favorites.contains(tour)) {
@@ -104,14 +127,16 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
             children: [
               CachedNetworkImage(
                 imageUrl:
-                'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
-                width: 200,
-                height: 200,
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                    'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
+                width: 150,
+                height: 150,
+                placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                const Icon(Icons.error),
               ),
               const SizedBox(height: 16),
-              const Text('Бронирований пока нет'),
+              const Text('Пока нет бронирований.'),
             ],
           ),
         )
@@ -126,8 +151,10 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 width: 50,
                 height: 50,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                const Icon(Icons.error),
               ),
               title: Text(tour.name),
               subtitle: Text(
@@ -142,13 +169,11 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _currentScreen == AppScreen.toursList
-              ? 'Доступные конные туры'
-              : _currentScreen == AppScreen.bookings
-              ? 'Мои бронирования'
-              : 'Форма бронирования',
-        ),
+        title: Text(_currentScreen == AppScreen.toursList
+            ? 'Доступные туры'
+            : _currentScreen == AppScreen.bookings
+            ? 'Мои бронирования'
+            : 'Форма бронирования'),
       ),
       body: body,
       floatingActionButton: _currentScreen == AppScreen.toursList
@@ -161,4 +186,5 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
     );
   }
 }
+
 
