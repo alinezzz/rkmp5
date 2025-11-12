@@ -28,7 +28,7 @@ class BookingsScreen extends StatelessWidget {
               errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
             const SizedBox(height: 16),
-            const Text('Пока нет забронированных туров'),
+            const Text('Нет забронированных туров'),
           ],
         ),
       )
@@ -41,9 +41,9 @@ class BookingsScreen extends StatelessWidget {
           return ListTile(
             leading: CachedNetworkImage(
               imageUrl: tour.pictureLink,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
+              width: 150,
+              height: 70,
+              fit: BoxFit.contain,
               placeholder: (context, url) =>
               const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => const Icon(Icons.error),
