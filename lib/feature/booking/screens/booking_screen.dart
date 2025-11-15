@@ -5,7 +5,7 @@ import '../../horse_tour/models/horse_tour_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class BookingsScreen extends StatelessWidget {
-  const BookingsScreen({super.key});
+  const BookingsScreen({super.key, required List<BookingModel> bookings});
 
   @override
   Widget build(BuildContext context) {

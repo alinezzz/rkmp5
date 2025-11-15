@@ -10,7 +10,7 @@ class HorseToursApp extends StatelessWidget {
     return MaterialApp(
       title: 'Приложение для бронирования конных туров',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
       home: HorseToursListScreen(),
     );

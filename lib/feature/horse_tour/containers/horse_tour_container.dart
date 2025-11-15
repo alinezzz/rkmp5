@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:rkmp5/feature/booking/models/booking_model.dart';
+import '../../../share/widgets/favorites_tour.dart';
 import '../models/horse_tour_model.dart';
 import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '/router.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 
-enum AppScreen { toursList, bookingForm, bookings }
 
 class HorseTourContainer extends StatefulWidget {
   final List<TourModel> tours;
@@ -21,7 +24,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
   final List<TourModel> _favorites = [];
   final List<BookingModel> _bookings = [];
 
-  AppScreen _currentScreen = AppScreen.toursList;
+  int _currentTab = 0; // 0 - все туры, 1 - избранные, 2 - бронирования
   TourModel? _selectedTour;
 
   @override
@@ -30,173 +33,205 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
     _tours = List.from(widget.tours);
   }
 
-  void _navigateTo(AppScreen screen, {TourModel? tour}) {
+  void _showBookingForm(TourModel tour) {
     setState(() {
-      _currentScreen = screen;
       _selectedTour = tour;
     });
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) =>
+          BookingFormScreen(
+            tour: tour,
+            onSubmit: (booking) {
+              setState(() {
+                _bookings.add(booking);
+                _tours.remove(booking.tour);
+                _currentTab =
+                2; // после бронирования показываем вкладку "Мои бронирования"
+              });
+              Navigator.of(context).pop();
+            },
+            onCancel: () {
+              Navigator.of(context).pop();
+            },
+          ),
+    );
   }
 
-  void _addBooking(BookingModel booking) {
-    setState(() {
-      _bookings.add(booking);
-      _tours.remove(booking.tour); // убрать забронированный тур из списка доступных
-      _currentScreen = AppScreen.toursList;
-      _selectedTour = null; // очистить выбранный тур после бронирования
-    });
+  Widget _buildToursList() {
+    const String logoUrl =
+        'https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_689a15b7f9a5050af7f045d0_689a17907a48627e4273bfa9/scale_1200';
+
+    if (_tours.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CachedNetworkImage(
+              imageUrl:
+              'https://i.pinimg.com/originals/41/f8/65/41f865ca4cfce007720cf280c7410590.jpg',
+              width: 300,
+              height: 300,
+              placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
+            const SizedBox(height: 16),
+            const Text('Туры пока недоступны.'),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        CachedNetworkImage(
+          imageUrl: logoUrl,
+          width: 500,
+          height: 200,
+          fit: BoxFit.cover,
+          placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: _tours.length,
+            itemBuilder: (context, index) {
+              final tour = _tours[index];
+              return TourRow(
+                tour: tour,
+                isFavorite: _favorites.contains(tour),
+                onTap: () => _showBookingForm(tour),
+                onFavorite: () {
+                  setState(() {
+                    if (_favorites.contains(tour)) {
+                      _favorites.remove(tour);
+                    } else {
+                      _favorites.add(tour);
+                    }
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 
+  Widget _buildFavorites() {
+    return TourFavoritesTable(
+      favoriteTours: _favorites,
+      onRemoveFavorite: (tour) {
+        setState(() {
+          _favorites.remove(tour);
+        });
+      },
+    );
+  }
+
+  Widget _buildBookings() {
+    if (_bookings.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CachedNetworkImage(
+              imageUrl:
+              'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
+              width: 150,
+              height: 150,
+              placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
+            const SizedBox(height: 16),
+            const Text('Пока нет бронирований.'),
+          ],
+        ),
+      );
+    }
+    return ListView.builder(
+      itemCount: _bookings.length,
+      itemBuilder: (context, index) {
+        final booking = _bookings[index];
+        final tour = booking.tour;
+        return ListTile(
+          leading: CachedNetworkImage(
+            imageUrl: tour.pictureLink,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+            placeholder: (context, url) =>
+            const Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+          title: Text(tour.name),
+          subtitle: Text(
+            'C ${booking.startDate.toIso8601String().split("T")[0]} '
+                'по ${booking.endDate.toIso8601String().split("T")[0]}',
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-
-    const String logoUrl = 'https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_689a15b7f9a5050af7f045d0_689a17907a48627e4273bfa9/scale_1200';
-
-    switch (_currentScreen) {
-      case AppScreen.toursList:
-        body = _tours.isEmpty
-            ? Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CachedNetworkImage(
-                imageUrl:
-                'https://i.pinimg.com/originals/41/f8/65/41f865ca4cfce007720cf280c7410590.jpg',
-                width: 300,
-                height: 300,
-                placeholder: (context, url) =>
-                const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) =>
-                const Icon(Icons.error),
-              ),
-              const SizedBox(height: 16),
-              const Text('Туры пока недоступны.'),
-            ],
-          ),
-        )
-            : Column(
-          children: [
-            CachedNetworkImage(
-              imageUrl: logoUrl,
-              width: 500,
-              height: 200,
-              fit: BoxFit.cover,
-              placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) =>
-              const Icon(Icons.error),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _tours.length,
-                itemBuilder: (context, index) {
-                  final tour = _tours[index];
-                  return TourRow(
-                    tour: tour,
-                    isFavorite: _favorites.contains(tour),
-                    onTap: () =>
-                        _navigateTo(AppScreen.bookingForm, tour: tour),
-                    onFavorite: () {
-                      setState(() {
-                        if (_favorites.contains(tour)) {
-                          _favorites.remove(tour);
-                        } else {
-                          _favorites.add(tour);
-                        }
-                      });
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-        break;
-
-      case AppScreen.bookingForm:
-        body = BookingFormScreen(
-          tour: _selectedTour!,
-          onSubmit: _addBooking,
-          onCancel: () => _navigateTo(AppScreen.toursList),
-        );
-        break;
-
-      case AppScreen.bookings:
-        body = _bookings.isEmpty
-            ? Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CachedNetworkImage(
-                imageUrl:
-                    'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
-                width: 150,
-                height: 150,
-                placeholder: (context, url) =>
-                const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) =>
-                const Icon(Icons.error),
-              ),
-              const SizedBox(height: 16),
-              const Text('Пока нет бронирований.'),
-            ],
-          ),
-        )
-            : ListView.builder(
-          itemCount: _bookings.length,
-          itemBuilder: (context, index) {
-            final booking = _bookings[index];
-            final tour = booking.tour;
-            return ListTile(
-              leading: CachedNetworkImage(
-                imageUrl: tour.pictureLink,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) =>
-                const Icon(Icons.error),
-              ),
-              title: Text(tour.name),
-              subtitle: Text(
-                'С ${booking.startDate.toIso8601String().split("T")[0]} '
-                    'по ${booking.endDate.toIso8601String().split("T")[0]}',
-              ),
-            );
-          },
-        );
-        break;
-    }
+    List<Widget> pages = [
+      _buildToursList(),
+      _buildFavorites(),
+      _buildBookings(),
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentScreen == AppScreen.toursList
+        title: Text(_currentTab == 0
             ? 'Доступные туры'
-            : _currentScreen == AppScreen.bookings
-            ? 'Мои бронирования'
-            : 'Форма бронирования'),
-        leading: _currentScreen == AppScreen.bookings
-            ? IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => setState(() {
-            _currentScreen = AppScreen.toursList;
-            _selectedTour = null;
-          }),
-        )
-            : null,
+            : _currentTab == 1
+            ? 'Избранные туры'
+            : 'Мои бронирования'),
       ),
-      body: body,
-      floatingActionButton: _currentScreen == AppScreen.toursList
-          ? FloatingActionButton.extended(
-        icon: const Icon(Icons.list_alt),
-        label: const Text('Мои бронирования'),
-        onPressed: () => _navigateTo(AppScreen.bookings),
-      )
-          : null,
+      body: pages[_currentTab],
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                _currentTab == 0 ? Colors.white : Colors.lime,
+              ),
+              onPressed: () {
+                setState(() {_currentTab = 0;});
+              },
+              child: const Text('Все туры'),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                _currentTab == 1 ? Colors.white : Colors.lime,
+              ),
+              onPressed: () {setState(() {_currentTab = 1;});},
+              child: const Text('Избранное'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                _currentTab == 2 ? Colors.white : Colors.lime,
+              ),
+              onPressed: () {
+                setState(() {_currentTab = 2;});
+              },
+              child: const Text('Мои бронирования'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
-
-
