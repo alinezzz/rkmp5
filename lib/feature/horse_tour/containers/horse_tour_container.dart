@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rkmp5/feature/booking/models/booking_model.dart';
+import 'package:rkmp5/feature/profile/profile_screen.dart';
 import '../../../share/widgets/favorites_tour.dart';
 import '../models/horse_tour_model.dart';
 import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '/router.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
-
 
 class HorseTourContainer extends StatefulWidget {
   final List<TourModel> tours;
@@ -24,7 +22,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
   final List<TourModel> _favorites = [];
   final List<BookingModel> _bookings = [];
 
-  int _currentTab = 0; // 0 - все туры, 1 - избранные, 2 - бронирования
+  int _currentTab = 0;
   TourModel? _selectedTour;
 
   @override
@@ -47,8 +45,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               setState(() {
                 _bookings.add(booking);
                 _tours.remove(booking.tour);
-                _currentTab =
-                2; // после бронирования показываем вкладку "Мои бронирования"
+                _currentTab = 2;
               });
               Navigator.of(context).pop();
             },
@@ -103,7 +100,8 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               return TourRow(
                 tour: tour,
                 isFavorite: _favorites.contains(tour),
-                onTap: () => _showBookingForm(tour),
+                onTap: () => context.go('/tourDetails', extra: tour),
+                onBook: () => _showBookingForm(tour),
                 onFavorite: () {
                   setState(() {
                     if (_favorites.contains(tour)) {
@@ -184,6 +182,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
       _buildToursList(),
       _buildFavorites(),
       _buildBookings(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
@@ -192,7 +191,9 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
             ? 'Доступные туры'
             : _currentTab == 1
             ? 'Избранные туры'
-            : 'Мои бронирования'),
+            : _currentTab == 2
+            ? 'Мои бронирования'
+            : 'Профиль'),
       ),
       body: pages[_currentTab],
       bottomNavigationBar: Padding(
@@ -228,6 +229,16 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 setState(() {_currentTab = 2;});
               },
               child: const Text('Мои бронирования'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                _currentTab == 3 ? Colors.white : Colors.lime,
+              ),
+              onPressed: () {
+                setState(() {_currentTab = 3;});
+              },
+              child: const Text('Профиль'),
             ),
           ],
         ),

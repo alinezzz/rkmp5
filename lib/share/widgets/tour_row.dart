@@ -4,13 +4,15 @@ import 'package:rkmp5/feature/horse_tour/models/horse_tour_model.dart';
 class TourRow extends StatelessWidget {
   final TourModel tour;
   final VoidCallback? onTap;
+  final VoidCallback? onBook;
   final bool isFavorite;
   final VoidCallback? onFavorite;
 
-    TourRow({
+  const TourRow({
     super.key,
     required this.tour,
     this.onTap,
+    this.onBook,
     this.isFavorite = false,
     this.onFavorite,
   });
@@ -22,7 +24,8 @@ class TourRow extends StatelessWidget {
       child: ListTile(
         leading: const Icon(Icons.event),
         title: Text(tour.name),
-        subtitle: Text('${tour.location} - ${tour.duration} - \$${tour.pricePerPerson} за одного человека'),
+        subtitle: Text(
+            '${tour.location} - ${tour.duration} - \$${tour.pricePerPerson} за одного человека'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -34,7 +37,7 @@ class TourRow extends StatelessWidget {
               onPressed: onFavorite,
             ),
             ElevatedButton(
-              onPressed: onTap,
+              onPressed: onBook,
               child: const Text('Забронировать'),
             ),
           ],
