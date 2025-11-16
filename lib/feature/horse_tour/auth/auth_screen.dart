@@ -27,7 +27,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _onLoginSuccess() {
     if (mounted) {
-      context.go('/');
+      context.pushReplacement('/');
     }
   }
 
