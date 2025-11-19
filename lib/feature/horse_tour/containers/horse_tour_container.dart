@@ -101,7 +101,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               return TourRow(
                 tour: tour,
                 isFavorite: _favorites.contains(tour),
-                onTap: () => context.go('/tourDetails', extra: tour),
+                onTap: () => context.push('/tourDetails', extra: tour),
                 onBook: () => _showBookingForm(tour),
                 onFavorite: () {
                   setState(() {

@@ -11,7 +11,13 @@ class TourDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(tour.name)),
+      appBar: AppBar(
+        title: Text(tour.name),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -29,7 +35,7 @@ class TourDetailsScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(tour.description, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 24),
-                      ],
+          ],
         ),
       ),
     );

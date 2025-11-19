@@ -44,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: Colors.lime,
                 foregroundColor: Colors.black,
               ),
-              onPressed: () => context.go('/auth'),
+              onPressed: () => context.pushReplacement('/auth'),
               child: const Text('Выйти'),
             ),
           ],
