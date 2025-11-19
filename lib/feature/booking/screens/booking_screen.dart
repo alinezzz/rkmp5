@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
-import '../containers/booking_container.dart';
+import 'package:go_router/go_router.dart';
 import '../models/booking_model.dart';
 import '../../horse_tour/models/horse_tour_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class BookingsScreen extends StatelessWidget {
-  const BookingsScreen({super.key, required List<BookingModel> bookings});
+  final List<BookingModel> bookings;
+
+  const BookingsScreen({super.key, required this.bookings});
 
   @override
   Widget build(BuildContext context) {
-    final bookings = BookingContainer.of(context).bookings;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Мои бронирования'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => context.pop(),
         ),
       ),
       body: bookings.isEmpty

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:rkmp5/feature/booking/models/booking_model.dart';
 import 'package:rkmp5/feature/profile/profile_screen.dart';
 import '../../../share/widgets/favorites_tour.dart';
@@ -6,7 +7,7 @@ import '../models/horse_tour_model.dart';
 import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:go_router/go_router.dart';
+import 'package:rkmp5/router.dart';
 
 class HorseTourContainer extends StatefulWidget {
   final List<TourModel> tours;
@@ -45,12 +46,12 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               setState(() {
                 _bookings.add(booking);
                 _tours.remove(booking.tour);
-                _currentTab = 2;
               });
-              Navigator.of(context).pop();
+              context.pop();
+              context.push('/bookings', extra: BookingsScreenArgs(bookings: _bookings));
             },
             onCancel: () {
-              Navigator.of(context).pop();
+              context.pop();
             },
           ),
     );
@@ -127,6 +128,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
           _favorites.remove(tour);
         });
       },
+      onBook: _showBookingForm,
     );
   }
 
@@ -178,15 +180,12 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> pages = [
-      _buildToursList(),
-      _buildFavorites(),
-      _buildBookings(),
-      const ProfileScreen(),
-    ];
-
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
         title: Text(_currentTab == 0
             ? 'Доступные туры'
             : _currentTab == 1
@@ -195,7 +194,15 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
             ? 'Мои бронирования'
             : 'Профиль'),
       ),
-      body: pages[_currentTab],
+      body: IndexedStack(
+        index: _currentTab,
+        children: [
+          _buildToursList(),
+          _buildFavorites(),
+          _buildBookings(),
+          const ProfileScreen(),
+        ],
+      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Row(
@@ -217,7 +224,17 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 backgroundColor:
                 _currentTab == 1 ? Colors.white : Colors.lime,
               ),
-              onPressed: () {setState(() {_currentTab = 1;});},
+              onPressed: () {
+                context.push('/favorites', extra: FavoritesScreenArgs(
+                  favoriteTours: _favorites,
+                  onRemoveFavorite: (tour) {
+                    setState(() {
+                      _favorites.remove(tour);
+                    });
+                  },
+                  onBook: _showBookingForm,
+                ));
+              },
               child: const Text('Избранное'),
             ),
             ElevatedButton(
@@ -226,7 +243,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 _currentTab == 2 ? Colors.white : Colors.lime,
               ),
               onPressed: () {
-                setState(() {_currentTab = 2;});
+                context.push('/bookings', extra: BookingsScreenArgs(bookings: _bookings));
               },
               child: const Text('Мои бронирования'),
             ),
@@ -236,7 +253,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 _currentTab == 3 ? Colors.white : Colors.lime,
               ),
               onPressed: () {
-                setState(() {_currentTab = 3;});
+                context.push('/profile');
               },
               child: const Text('Профиль'),
             ),

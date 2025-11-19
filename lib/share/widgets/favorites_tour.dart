@@ -8,11 +8,13 @@ import '../../feature/booking/models/booking_model.dart';
 class TourFavoritesTable extends StatelessWidget {
   final List<TourModel> favoriteTours;
   final Function(TourModel)? onRemoveFavorite;
+  final Function(TourModel)? onBook;
 
   const TourFavoritesTable({
     super.key,
     required this.favoriteTours,
     this.onRemoveFavorite,
+    this.onBook,
   });
 
   @override
@@ -33,6 +35,11 @@ class TourFavoritesTable extends StatelessWidget {
           onFavorite: () {
             if (onRemoveFavorite != null) {
               onRemoveFavorite!(tour);
+            }
+          },
+          onBook: () {
+            if (onBook != null) {
+              onBook!(tour);
             }
           },
         );

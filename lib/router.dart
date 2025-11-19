@@ -6,10 +6,10 @@ import 'feature/booking/screens/booking_form_screen.dart';
 import 'feature/booking/screens/booking_screen.dart';
 import 'feature/horse_tour/models/horse_tour_model.dart';
 import 'feature/booking/models/booking_model.dart';
-import 'package:rkmp5/share/widgets/favorites_screen.dart';
+import 'package:rkmp5/feature/horse_tour/screens/favorites_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rkmp5/feature/horse_tour/auth/auth_screen.dart';
-import 'feature/horse_tour/screens/tour_details_screen.dart';
+import 'package:rkmp5/feature/horse_tour/screens/tour_details_screen.dart';
 
 final ValueNotifier<bool> isLoggedIn = ValueNotifier<bool>(false);
 
@@ -56,7 +56,8 @@ final GoRouter appRouter = GoRouter(
       path: '/bookings',
       name: 'bookings',
       builder: (context, state) {
-        return const BookingsScreen(bookings: [],);
+        final args = state.extra as BookingsScreenArgs?;
+        return BookingsScreen(bookings: args?.bookings ?? []);
       },
     ),
     GoRoute(
@@ -67,6 +68,7 @@ final GoRouter appRouter = GoRouter(
         return FavoritesScreen(
           favoriteTours: args?.favoriteTours ?? [],
           onRemoveFavorite: args?.onRemoveFavorite ?? (_) {},
+          onBook: args?.onBook ?? (_) {},
         );
       },
     ),
@@ -78,13 +80,21 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-// Класс для передачи аргументов на экран "Избранное"
 class FavoritesScreenArgs {
   final List<TourModel> favoriteTours;
   final Function(TourModel) onRemoveFavorite;
+  final Function(TourModel) onBook;
+
 
   FavoritesScreenArgs({
     required this.favoriteTours,
     required this.onRemoveFavorite,
+    required this.onBook,
   });
+}
+
+class BookingsScreenArgs {
+  final List<BookingModel> bookings;
+
+  BookingsScreenArgs({required this.bookings});
 }
