@@ -4,8 +4,10 @@ import 'feature/horse_tour/containers/horse_tour_container.dart';
 import 'feature/horse_tour/screens/horse_tour_screen.dart';
 import 'package:rkmp5/router.dart';
 import 'package:go_router/go_router.dart';
+import 'feature/horse_tour/horse_tour_getit.dart';
 
 void main() {
+  setupGetIt();
   runApp(const MyApp());
 }
 
