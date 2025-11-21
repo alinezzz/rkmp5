@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rkmp5/feature/booking/containers/booking_container.dart';
+import '../../../share/app_state.dart';
 import '../models/horse_tour_model.dart';
 import '../horse_tour_repository.dart';
 import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
@@ -14,8 +15,8 @@ class HorseToursListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tours = repository.getTours();
+    final appState = AppState.of(context)?.tours ?? repository.getTours();
 
-    return HorseTourContainer(tours: tours);
+    return HorseTourContainer(tours: appState);
   }
 }
