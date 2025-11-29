@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
-import '../models/horse_tour_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/horse_tour_cubit.dart';
+import '../cubit/horse_tour_state.dart';
 import '../horse_tour_repository.dart';
 import '../containers/horse_tour_container.dart';
-import '../horse_tour_getit.dart';
 
 class HorseToursListScreen extends StatelessWidget {
-  final ToursRepository repository = ToursRepository();
-
-  HorseToursListScreen({super.key});
+  const HorseToursListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isRegistered = getit.isRegistered<AppStateGetIt>();
-    print("AppStateGetIt зарегистрирован: $isRegistered");
-    final appStateGetIt = getit.get<AppStateGetIt>();
-    if (appStateGetIt.tours.isEmpty) {
-      appStateGetIt.tours = repository.getTours();
-    }
-    final appState = appStateGetIt.tours;
-
-    return HorseTourContainer(tours: appState);
+    return BlocProvider(
+      create: (context) => HorseTourCubit(ToursRepository())..getTours(),
+      child: BlocBuilder<HorseTourCubit, HorseTourState>(
+        builder: (context, state) {
+          if (state is HorseTourLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is HorseTourLoaded) {
+            return HorseTourContainer(tours: state.tours);
+          } else if (state is HorseTourError) {
+            return Center(child: Text(state.message));
+          } else {
+            return const Center(child: Text('Initial state'));
+          }
+        },
+      ),
+    );
   }
 }
