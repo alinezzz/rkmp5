@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:rkmp5/feature/booking/containers/booking_container.dart';
 import 'package:rkmp5/feature/profile/profile_screen.dart';
 import 'feature/horse_tour/screens/horse_tour_screen.dart';
 import 'feature/booking/screens/booking_form_screen.dart';
 import 'feature/booking/screens/booking_screen.dart';
 import 'feature/horse_tour/models/horse_tour_model.dart';
-import 'feature/booking/models/booking_model.dart';
 import 'package:rkmp5/feature/horse_tour/screens/favorites_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rkmp5/feature/horse_tour/auth/auth_screen.dart';
@@ -25,7 +23,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/',
       name: 'toursList',
-      builder: (context, state) => HorseToursListScreen(),
+      builder: (context, state) => const HorseToursListScreen(),
     ),
     GoRoute(
       path: '/tourDetails',
@@ -39,26 +37,14 @@ final GoRouter appRouter = GoRouter(
       path: '/bookingForm',
       name: 'bookingForm',
       builder: (context, state) {
-        final tour = state.extra is TourModel ? state.extra as TourModel : null;
-        return BookingFormScreen(
-          tour: tour!,
-          onSubmit: (booking) {
-            BookingContainer.of(context).addBooking(booking);
-            context.go('/bookings');
-          },
-          onCancel: () {
-            context.pop();
-          },
-        );
+        final tour = state.extra as TourModel;
+        return BookingFormScreen(tour: tour);
       },
     ),
     GoRoute(
       path: '/bookings',
       name: 'bookings',
-      builder: (context, state) {
-        final args = state.extra as BookingsScreenArgs?;
-        return BookingsScreen(bookings: args?.bookings ?? []);
-      },
+      builder: (context, state) => const BookingsScreen(),
     ),
     GoRoute(
       path: '/favorites',
@@ -91,10 +77,4 @@ class FavoritesScreenArgs {
     required this.onRemoveFavorite,
     required this.onBook,
   });
-}
-
-class BookingsScreenArgs {
-  final List<BookingModel> bookings;
-
-  BookingsScreenArgs({required this.bookings});
 }
