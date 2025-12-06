@@ -1,65 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../models/booking_model.dart';
-import '../../horse_tour/models/horse_tour_model.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/booking_cubit.dart';
+import '../cubit/booking_state.dart';
 
 class BookingsScreen extends StatelessWidget {
-  final List<BookingModel> bookings;
-
-  const BookingsScreen({super.key, required this.bookings});
+  const BookingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Мои бронирования'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
       ),
-      body: bookings.isEmpty
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CachedNetworkImage(
-              imageUrl:
-              'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
-              width: 200,
-              height: 200,
-              placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            ),
-            const SizedBox(height: 16),
-            const Text('Нет забронированных туров'),
-          ],
-        ),
-      )
-          : ListView.builder(
-        itemCount: bookings.length,
-        itemBuilder: (context, index) {
-          final BookingModel booking = bookings[index];
-          final TourModel tour = booking.tour;
-
-          return ListTile(
-            leading: CachedNetworkImage(
-              imageUrl: tour.pictureLink,
-              width: 150,
-              height: 70,
-              fit: BoxFit.contain,
-              placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            ),
-            title: Text(tour.name),
-            subtitle: Text(
-              '[С] ${booking.startDate.toIso8601String().split("T")[0]} '
-                  '[по] ${booking.endDate.toIso8601String().split("T")[0]}',
-            ),
-          );
+      body: BlocBuilder<BookingCubit, BookingState>(
+        builder: (context, state) {
+          if (state is BookingLoaded) {
+            final bookings = state.bookings;
+            return ListView.builder(
+              itemCount: bookings.length,
+              itemBuilder: (context, index) {
+                final booking = bookings[index];
+                return ListTile(
+                  title: Text(booking.name),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      context.read<BookingCubit>().removeBooking(booking);
+                    },
+                  ),
+                );
+              },
+            );
+          } else {
+            return const Center(child: Text('Нет бронирований'));
+          }
         },
       ),
     );
