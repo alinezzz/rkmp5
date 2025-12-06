@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rkmp5/feature/booking/models/booking_model.dart';
+import 'package:rkmp5/feature/booking/cubit/booking_cubit.dart';
+import 'package:rkmp5/feature/booking/cubit/booking_state.dart';
+import 'package:rkmp5/feature/horse_tour/cubit/favorites_cubit.dart';
+import 'package:rkmp5/feature/horse_tour/cubit/favorites_state.dart';
 import 'package:rkmp5/feature/profile/profile_screen.dart';
 import '../../../share/widgets/favorites_tour.dart';
 import '../models/horse_tour_model.dart';
-import 'package:rkmp5/feature/booking/screens/booking_form_screen.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:rkmp5/router.dart';
 
 class HorseTourContainer extends StatefulWidget {
   final List<TourModel> tours;
@@ -19,49 +21,13 @@ class HorseTourContainer extends StatefulWidget {
 }
 
 class _HorseTourContainerState extends State<HorseTourContainer> {
-  late List<TourModel> _tours;
-  final List<TourModel> _favorites = [];
-  final List<BookingModel> _bookings = [];
-
   int _currentTab = 0;
-  TourModel? _selectedTour;
 
-  @override
-  void initState() {
-    super.initState();
-    _tours = List.from(widget.tours);
-  }
-
-  void _showBookingForm(TourModel tour) {
-    setState(() {
-      _selectedTour = tour;
-    });
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) =>
-          BookingFormScreen(
-            tour: tour,
-            onSubmit: (booking) {
-              setState(() {
-                _bookings.add(booking);
-                _tours.remove(booking.tour);
-              });
-              context.pop();
-              context.push('/bookings', extra: BookingsScreenArgs(bookings: _bookings));
-            },
-            onCancel: () {
-              context.pop();
-            },
-          ),
-    );
-  }
-
-  Widget _buildToursList() {
+  Widget _buildToursList(BuildContext context) {
     const String logoUrl =
         'https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_689a15b7f9a5050af7f045d0_689a17907a48627e4273bfa9/scale_1200';
 
-    if (_tours.isEmpty) {
+    if (widget.tours.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -95,22 +61,20 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: _tours.length,
+            itemCount: widget.tours.length,
             itemBuilder: (context, index) {
-              final tour = _tours[index];
-              return TourRow(
-                tour: tour,
-                isFavorite: _favorites.contains(tour),
-                onTap: () => context.push('/tourDetails', extra: tour),
-                onBook: () => _showBookingForm(tour),
-                onFavorite: () {
-                  setState(() {
-                    if (_favorites.contains(tour)) {
-                      _favorites.remove(tour);
-                    } else {
-                      _favorites.add(tour);
-                    }
-                  });
+              final tour = widget.tours[index];
+              return BlocBuilder<FavoritesCubit, FavoritesState>(
+                builder: (context, favoritesState) {
+                  final isFavorite = favoritesState is FavoritesLoaded && favoritesState.favoriteTours.contains(tour);
+                  return TourRow(
+                    tour: tour,
+                    isFavorite: isFavorite,
+                    onTap: () => context.push('/tourDetails', extra: tour),
+                    onBook: () => context.push('/bookingForm', extra: tour),
+                    onFavorite: () =>
+                        context.read<FavoritesCubit>().toggleFavorite(tour),
+                  );
                 },
               );
             },
@@ -120,61 +84,68 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
     );
   }
 
-  Widget _buildFavorites() {
-    return TourFavoritesTable(
-      favoriteTours: _favorites,
-      onRemoveFavorite: (tour) {
-        setState(() {
-          _favorites.remove(tour);
-        });
+  Widget _buildFavorites(BuildContext context) {
+    return BlocBuilder<FavoritesCubit, FavoritesState>(
+      builder: (context, state) {
+        final favoriteTours = state is FavoritesLoaded ? state.favoriteTours : <TourModel>[];
+        return TourFavoritesTable(
+          favoriteTours: favoriteTours,
+          onRemoveFavorite: (tour) =>
+              context.read<FavoritesCubit>().toggleFavorite(tour),
+          onBook: (tour) => context.push('/bookingForm', extra: tour),
+        );
       },
-      onBook: _showBookingForm,
     );
   }
 
   Widget _buildBookings() {
-    if (_bookings.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CachedNetworkImage(
-              imageUrl:
-              'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
-              width: 150,
-              height: 150,
-              placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+    return BlocBuilder<BookingCubit, BookingState>(
+        builder: (context, state) {
+          if (state is BookingLoaded && state.bookings.isNotEmpty) {
+            return ListView.builder(
+              itemCount: state.bookings.length,
+              itemBuilder: (context, index) {
+                final tour = state.bookings[index];
+                return ListTile(
+                  leading: CachedNetworkImage(
+                    imageUrl: tour.pictureLink,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                  ),
+                  title: Text(tour.name),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      context.read<BookingCubit>().removeBooking(tour);
+                    },
+                  ),
+                );
+              },
+            );
+          }
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CachedNetworkImage(
+                  imageUrl:
+                  'https://masterpiecer-images.s3.yandex.net/c74dc3d877a111eeb11ee6d39d9a42a4:upscaled',
+                  width: 150,
+                  height: 150,
+                  placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
+                const SizedBox(height: 16),
+                const Text('Пока нет бронирований.'),
+              ],
             ),
-            const SizedBox(height: 16),
-            const Text('Пока нет бронирований.'),
-          ],
-        ),
-      );
-    }
-    return ListView.builder(
-      itemCount: _bookings.length,
-      itemBuilder: (context, index) {
-        final booking = _bookings[index];
-        final tour = booking.tour;
-        return ListTile(
-          leading: CachedNetworkImage(
-            imageUrl: tour.pictureLink,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-            placeholder: (context, url) =>
-            const Center(child: CircularProgressIndicator()),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
-          title: Text(tour.name),
-          subtitle: Text(
-            'C ${booking.startDate.toIso8601String().split("T")[0]} '
-                'по ${booking.endDate.toIso8601String().split("T")[0]}',
-          ),
-        );
-      },
+          );
+        }
     );
   }
 
@@ -197,8 +168,8 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
       body: IndexedStack(
         index: _currentTab,
         children: [
-          _buildToursList(),
-          _buildFavorites(),
+          _buildToursList(context),
+          _buildFavorites(context),
           _buildBookings(),
           const ProfileScreen(),
         ],
@@ -225,15 +196,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 _currentTab == 1 ? Colors.white : Colors.lime,
               ),
               onPressed: () {
-                context.push('/favorites', extra: FavoritesScreenArgs(
-                  favoriteTours: _favorites,
-                  onRemoveFavorite: (tour) {
-                    setState(() {
-                      _favorites.remove(tour);
-                    });
-                  },
-                  onBook: _showBookingForm,
-                ));
+                 setState(() {_currentTab = 1;});
               },
               child: const Text('Избранное'),
             ),
@@ -243,7 +206,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 _currentTab == 2 ? Colors.white : Colors.lime,
               ),
               onPressed: () {
-                context.push('/bookings', extra: BookingsScreenArgs(bookings: _bookings));
+                setState(() {_currentTab = 2;});
               },
               child: const Text('Мои бронирования'),
             ),
@@ -253,7 +216,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
                 _currentTab == 3 ? Colors.white : Colors.lime,
               ),
               onPressed: () {
-                context.push('/profile');
+                setState(() {_currentTab = 3;});
               },
               child: const Text('Профиль'),
             ),
