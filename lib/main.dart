@@ -4,6 +4,7 @@ import 'bloc_obs.dart';
 import 'feature/booking/cubit/booking_cubit.dart';
 import 'feature/horse_tour/cubit/favorites_cubit.dart';
 import 'feature/horse_tour/cubit/auth_cubit.dart';
+import 'feature/profile/cubit/profile_cubit.dart';
 import 'package:rkmp5/router.dart';
 import 'package:go_router/go_router.dart';
 import 'feature/horse_tour/horse_tour_getit.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => BookingCubit()),
         BlocProvider(create: (context) => FavoritesCubit()),
         BlocProvider(create: (context) => AuthCubit()),
+        BlocProvider(create: (context) => ProfileCubit()),
       ],
       child: MaterialApp.router(
         routerDelegate: appRouter.routerDelegate,
