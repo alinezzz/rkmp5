@@ -9,29 +9,67 @@ class ProfileScreen extends StatelessWidget {
 
   void _showEditProfileDialog(BuildContext context) {
     final usernameController = TextEditingController();
+    final profileCubit = context.read<ProfileCubit>();
+    usernameController.text = profileCubit.state.username;
+
+    final List<String> locations = ['Не указано', 'лес', 'горы', 'река'];
+    String selectedLocation = profileCubit.state.location;
+
+    if (!locations.contains(selectedLocation)) {
+      selectedLocation = locations.first;
+    }
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Редактировать профиль'),
-          content: TextField(
-            controller: usernameController,
-            decoration: const InputDecoration(labelText: 'Новое имя пользователя'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Отмена'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.read<ProfileCubit>().changeUsername(usernameController.text);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Сохранить'),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Редактировать профиль'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: usernameController,
+                    decoration: const InputDecoration(labelText: 'Новое имя пользователя'),
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: selectedLocation,
+                    decoration: const InputDecoration(labelText: 'Местоположение'),
+                    items: locations.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          selectedLocation = newValue;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Отмена'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    profileCubit.updateProfile(
+                      usernameController.text,
+                      selectedLocation,
+                    );
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Сохранить'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -57,6 +95,11 @@ class ProfileScreen extends StatelessWidget {
                   Text(
                     state.username,
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    state.location,
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   const Text(

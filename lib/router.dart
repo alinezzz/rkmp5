@@ -8,6 +8,7 @@ import 'package:rkmp5/feature/horse_tour/screens/favorites_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rkmp5/feature/horse_tour/auth/auth_screen.dart';
 import 'package:rkmp5/feature/horse_tour/screens/tour_details_screen.dart';
+import 'package:rkmp5/feature/recommended_tours/recommended_tours_screen.dart';
 
 final ValueNotifier<bool> isLoggedIn = ValueNotifier<bool>(false);
 
@@ -62,6 +63,11 @@ final GoRouter appRouter = GoRouter(
       path: '/profile',
       name: 'profile',
       builder: (context, state) => const ProfileScreen(),
+    ),
+    GoRoute(
+      path: '/recommended',
+      name: 'recommended',
+      builder: (context, state) => const RecommendedToursScreen(),
     ),
   ],
 );

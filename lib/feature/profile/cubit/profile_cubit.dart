@@ -4,7 +4,7 @@ import 'profile_state.dart';
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit() : super(const ProfileInitial());
 
-  void changeUsername(String newUsername) {
-    emit(ProfileUpdated(newUsername));
+  void updateProfile(String newUsername, String newLocation) {
+    emit(ProfileUpdated(newUsername, newLocation));
   }
 }

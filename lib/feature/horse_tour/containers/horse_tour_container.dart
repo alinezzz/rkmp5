@@ -6,6 +6,7 @@ import 'package:rkmp5/feature/booking/cubit/booking_state.dart';
 import 'package:rkmp5/feature/horse_tour/cubit/favorites_cubit.dart';
 import 'package:rkmp5/feature/horse_tour/cubit/favorites_state.dart';
 import 'package:rkmp5/feature/profile/profile_screen.dart';
+import 'package:rkmp5/feature/recommended_tours/recommended_tours_screen.dart';
 import '../../../share/widgets/favorites_tour.dart';
 import '../models/horse_tour_model.dart';
 import 'package:rkmp5/share/widgets/tour_row.dart';
@@ -160,8 +161,10 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
         title: Text(_currentTab == 0
             ? 'Доступные туры'
             : _currentTab == 1
-            ? 'Избранные туры'
+            ? 'Рекомендации'
             : _currentTab == 2
+            ? 'Избранные туры'
+            : _currentTab == 3
             ? 'Мои бронирования'
             : 'Профиль'),
       ),
@@ -169,6 +172,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
         index: _currentTab,
         children: [
           _buildToursList(context),
+          const RecommendedToursScreen(),
           _buildFavorites(context),
           _buildBookings(),
           const ProfileScreen(),
@@ -189,7 +193,6 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               },
               child: const Text('Все туры'),
             ),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor:
@@ -198,7 +201,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               onPressed: () {
                  setState(() {_currentTab = 1;});
               },
-              child: const Text('Избранное'),
+              child: const Text('Рекомендации'),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -208,7 +211,7 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               onPressed: () {
                 setState(() {_currentTab = 2;});
               },
-              child: const Text('Мои бронирования'),
+              child: const Text('Избранное'),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -217,6 +220,16 @@ class _HorseTourContainerState extends State<HorseTourContainer> {
               ),
               onPressed: () {
                 setState(() {_currentTab = 3;});
+              },
+              child: const Text('Мои бронирования'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                _currentTab == 4 ? Colors.white : Colors.lime,
+              ),
+              onPressed: () {
+                setState(() {_currentTab = 4;});
               },
               child: const Text('Профиль'),
             ),
