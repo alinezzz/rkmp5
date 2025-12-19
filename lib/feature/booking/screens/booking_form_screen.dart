@@ -1,103 +1,112 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:rkmp5/feature/booking/cubit/booking_cubit.dart';
 import '../../horse_tour/models/horse_tour_model.dart';
-import '../containers/booking_container.dart';
-import '../models/booking_model.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class BookingFormScreen extends StatefulWidget {
   final TourModel tour;
-  final void Function(BookingModel) onSubmit;
-  final VoidCallback onCancel;
 
-  const BookingFormScreen({
-    super.key,
-    required this.tour,
-    required this.onSubmit,
-    required this.onCancel,
-  });
+  const BookingFormScreen({super.key, required this.tour});
 
   @override
   _BookingFormScreenState createState() => _BookingFormScreenState();
 }
 
 class _BookingFormScreenState extends State<BookingFormScreen> {
+  DateTime? _startDate;
+  DateTime? _endDate;
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _startDateController = TextEditingController();
-  final TextEditingController _endDateController = TextEditingController();
 
-  @override
-  void dispose() {
-    _startDateController.dispose();
-    _endDateController.dispose();
-    super.dispose();
-  }
-
-  void _onConfirmTap() {
-    if (_formKey.currentState!.validate()) {
-      final start = DateTime.parse(_startDateController.text);
-      final end = DateTime.parse(_endDateController.text);
-
-      final booking = BookingModel(
-        tour: widget.tour,
-        startDate: start,
-        endDate: end,
-      );
-
-      widget.onSubmit(booking);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Бронирование сохранено!')),
-      );
+  Future<void> _selectDate(BuildContext context, bool isStart) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = picked;
+        } else {
+          _endDate = picked;
+        }
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            CachedNetworkImage(
-              imageUrl: widget.tour.pictureLink,
-              height: 200,
-              fit: BoxFit.contain,
-              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            ),
-            const SizedBox(height: 16),
-            Text('Забронировать ${widget.tour.name}', style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 16),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _startDateController,
-                    decoration: const InputDecoration(labelText: 'Дата начала (ГГГГ-MM-ДД)'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Введите дату начала';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _endDateController,
-                    decoration: const InputDecoration(labelText: 'Дата окончания (ГГГГ-MM-ДД)'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Введите дату начала';
-                      return null;
-                    },
-                  ),
-                ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Оформление бронирования'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Вы бронируете тур: ${widget.tour.name}',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(onPressed: _onConfirmTap, child: const Text('Подтвердить бронирование')),
-            const SizedBox(height: 12),
-            TextButton(onPressed: widget.onCancel, child: const Text('Выход')),
-          ],
+              const SizedBox(height: 32),
+              ListTile(
+                title: Text(_startDate == null
+                    ? 'Выберите дату начала'
+                    : 'Дата начала: ${_startDate!.toLocal().toString().split(' ')[0]}'),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: () => _selectDate(context, true),
+              ),
+              ListTile(
+                title: Text(_endDate == null
+                    ? 'Выберите дату окончания'
+                    : 'Дата окончания: ${_endDate!.toLocal().toString().split(' ')[0]}'),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: () => _selectDate(context, false),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () {
+                  if (_startDate != null && _endDate != null) {
+                    if (_endDate!.isAfter(_startDate!)) {
+                      context.read<BookingCubit>().addBooking(widget.tour);
+                      context.go('/'); // Navigate to the main screen
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Дата окончания должна быть после даты начала.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Пожалуйста, выберите обе даты.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                child: const Text('Забронировать'),
+              ),
+            ],
+          ),
         ),
       ),
     );

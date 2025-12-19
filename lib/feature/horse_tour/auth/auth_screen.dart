@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rkmp5/feature/horse_tour/cubit/auth_cubit.dart';
+import 'package:rkmp5/feature/horse_tour/cubit/auth_state.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -9,55 +12,55 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
-
-  void _submit() {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate a network request
-    Future.delayed(const Duration(seconds: 1), () {
-      _onLoginSuccess();
-    });
-  }
-
-  void _onLoginSuccess() {
-    if (mounted) {
-      context.pushReplacement('/');
-    }
-  }
+  final _loginController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Авторизация')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Имя пользователя'),
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Пароль'),
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              _isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _submit,
-                      child: const Text('Войти'),
-                    ),
-            ],
-          ),
-        ),
+      body: BlocConsumer<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is AuthSuccess) {
+            context.go('/');
+          } else if (state is AuthFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.error)),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextField(
+                  controller: _loginController,
+                  decoration: const InputDecoration(labelText: 'Логин'),
+                ),
+                TextField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(labelText: 'Пароль'),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                if (state is AuthLoading)
+                  const CircularProgressIndicator()
+                else
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthCubit>().login(
+                            _loginController.text,
+                            _passwordController.text,
+                          );
+                    },
+                    child: const Text('Войти'),
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
