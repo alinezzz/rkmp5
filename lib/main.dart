@@ -6,6 +6,7 @@ import 'feature/horse_tour/cubit/favorites_cubit.dart';
 import 'feature/horse_tour/cubit/auth_cubit.dart';
 import 'feature/profile/cubit/profile_cubit.dart';
 import 'feature/recommended_tours/cubit/recommended_tours_cubit.dart';
+import 'feature/reviews/cubit/reviews_cubit.dart';
 import 'package:rkmp5/router.dart';
 import 'package:go_router/go_router.dart';
 import 'feature/horse_tour/horse_tour_getit.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => RecommendedToursCubit(context.read<ProfileCubit>()),
         ),
+        BlocProvider(create: (context) => ReviewsCubit()),
       ],
       child: MaterialApp.router(
         routerDelegate: appRouter.routerDelegate,
